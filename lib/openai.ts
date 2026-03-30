@@ -1,9 +1,16 @@
 import OpenAI from "openai";
 import type { FormattedPaper } from "./semanticScholar";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy singleton — instantiated on first call, not at module load time.
+// This prevents Next.js from throwing during build-time page-data collection
+// when OPENAI_API_KEY is not available in the build environment.
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+}
 
 export interface GradeComment {
   label: string;
@@ -17,7 +24,7 @@ export interface GradeComment {
 export async function extractKeyPhrases(
   text: string
 ): Promise<{ title: string; phrases: string[] }> {
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
     temperature: 0,
     max_tokens: 300,
@@ -59,7 +66,7 @@ export async function gradeOnly(
         "\n\nConsider how the student's work compares to professional scholarship when grading.\n\n"
       : "";
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o",
     temperature: 0.3,
     max_tokens: 2500,
