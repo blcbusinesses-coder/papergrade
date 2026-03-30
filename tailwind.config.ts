@@ -8,9 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        serif: ["var(--font-lora)", "Georgia", "serif"],
+      },
+      animation: {
+        "pulse-highlight": "highlightPulse 0.6s ease-in-out",
       },
     },
   },
